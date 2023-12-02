@@ -3297,6 +3297,7 @@ extern __bank0 __bit __timeout;
 # 1 "main.c" 2
 
 
+
 # 1 "./KF2.h" 1
 
 
@@ -3328,7 +3329,7 @@ extern __bank0 __bit __timeout;
 
 void setup(void);
 void PWMinit(void);
-# 3 "main.c" 2
+# 4 "main.c" 2
 
 
 unsigned int getADCValue(unsigned char channel);
@@ -3345,7 +3346,7 @@ unsigned int const TABLE[] = {9712, 9166, 8654, 8172, 7722, 7298, 6900, 6526, 61
                               1194, 1142, 1092, 1045, 1000, 957, 916, 877, 840, 805, 772, 740, 709, 680, 653, 626, 601, 577, 554, 532, 511, 491, 472,
                               454, 436, 420, 404, 388, 374, 360, 346, 334, 321, 309, 298, 287, 277, 267, 258, 248
                              };
-# 32 "main.c"
+# 33 "main.c"
 unsigned long ad1 = 0;
 unsigned int ad2 = 0, ad3 = 0;
 
@@ -3356,10 +3357,10 @@ void main(void)
     char add = 1;
     setup();
     PWMinit();
- CCPR1L = 0;
-    _delay((unsigned long)((1200)*(32000000/4000.0)));
- TRISAbits.TRISA5 = 0;
+
+    _delay((unsigned long)((1000)*(32000000/4000.0)));
  T2CONbits.TMR2ON = 1;
+ TRISAbits.TRISA5 = 0;
 
     while (1)
     {
@@ -3406,7 +3407,7 @@ void main(void)
    timerActive = 0;
    timerCounter = 0;
   }
-  _delay((unsigned long)((200)*(32000000/4000.0)));
+  _delay((unsigned long)((100)*(32000000/4000.0)));
     }
 }
 
@@ -3449,7 +3450,7 @@ void __attribute__((picinterrupt(("")))) ISR(void)
   }
   else if(y == 1)
   {
-   CCPR1L = PR2 - 1;
+   CCPR1L = 230;
   }
   PIE1bits.TMR2IE = 1;
   T2CONbits.TMR2ON = 1;
@@ -3468,7 +3469,7 @@ void __attribute__((picinterrupt(("")))) ISR(void)
     break;
    }
   }
-# 179 "main.c"
+# 180 "main.c"
   if (timerActive)
   {
             if((r < 100 || r > 900) && (v <= (t - 2)))
@@ -3480,20 +3481,19 @@ void __attribute__((picinterrupt(("")))) ISR(void)
     timerActive = 0;
             }
 
-            if(timerCounter >= 200)
+            if(timerCounter >= 5)
    {
     PORTAbits.RA4 = 0;
     T2CONbits.TMR2ON = 0;
-    PIE1bits.TMR2IE = 0;
-    CCPR1L = 0;
+
+
     CCP1CON = 0;
-    TRISAbits.TRISA5 = 0;
+
     ADCON0bits.ADON = 0;
+    PORTAbits.RA5 = 0;
     while(1)
     {
-     PORTAbits.RA5 = 0;
-     _delay((unsigned long)((100)*(32000000/4000.0)));
-     PORTAbits.RA5 = 1;
+     PORTAbits.RA5 = !PORTAbits.RA5;
      _delay((unsigned long)((100)*(32000000/4000.0)));
     }
             }

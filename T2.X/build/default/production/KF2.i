@@ -3354,7 +3354,7 @@ void PWMinit(void)
 {
  TRISAbits.TRISA5 = 1;
  APFCONbits.CCP1SEL = 1;
-    PR2 = 0xFF;
+    PR2 = 254;
  CCP1CONbits.CCP1M = 0x0F;
  CCP1CONbits.P1M = 0;
     INTCONbits.GIE = 1;

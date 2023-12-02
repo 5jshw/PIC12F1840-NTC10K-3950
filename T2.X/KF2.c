@@ -25,7 +25,7 @@ void PWMinit(void)
 {	
 	TRISAbits.TRISA5 = 1;       //禁止输出
 	APFCONbits.CCP1SEL = 1;		//设置RA5引脚的功能
-    PR2 = 0xFF;					//设定周期
+    PR2 = 254;					//设定周期
 	CCP1CONbits.CCP1M = 0x0F;	//ECCP1 模式选择为PWM 模式
 	CCP1CONbits.P1M = 0;		//增强型 PWM 输出配置位
     INTCONbits.GIE = 1;         //开总中断

@@ -1,15 +1,19 @@
 #include <xc.h>
+#include <pic12lf1840.h>
 //#include <pic12f1840.h>
 #include "KF2.h"
 
-unsigned int getADCValue(unsigned char channel);        //单次AD转换
-unsigned int getADS(unsigned char ssa);                 //多次AD转换
-void __interrupt() ISR(void);                           //中断处理函数
+unsigned int getADCValue(unsigned char channel);        // 单次AD转换
+unsigned int getADS(unsigned char ssa);                 // 多次AD转换
+void __interrupt() ISR(void);                           // 中断处理函数
+void ADsensing(void);									// AD转换，主程序
+void Tempjudgements(void);								// 温度判断
 int t, v, y = 0;
 unsigned int r;
-unsigned long Rt;                                       //VR 当前电压值
-unsigned int timerCounter = 0;  // 计时器计数器
-char timerActive = 0;  // 标志位，表示计时器是否激活
+unsigned long Rt;                                       // VR 当前电压值
+unsigned int timerCounter = 0;							// 计时器计数器
+char add = 1;											// 电位器的采样频率
+char timerActive = 0;									// 标志位，表示计时器是否激活
 
 unsigned int const TABLE[] = {9712, 9166, 8654, 8172, 7722, 7298, 6900, 6526, 6176, 5534, 5242, 4966, 4708, 4464, 4234, 4016, 3812, 3620, 3438, 3266, 
                               3104, 2950, 2806, 2668, 2540, 2418, 2302, 2192, 2088, 1990, 1897, 1809, 1726, 1646, 1571, 1500, 1432, 1368, 1307, 1249, 
@@ -36,17 +40,36 @@ void main(void)
 {
 	timerActive = 0;		// 关闭计时器
     timerCounter = 0;		// 重置计时器计数
-    char add = 1;			//电位器的采样频率
+    
     setup();				//AD转换初始化函数调用，原函数位于KF1.c
     PWMinit();				//PWM初始化函数调用，原函数位于KF1.c
-	CCPR1L = 0;
-    __delay_ms(1200);		//缓冲期
-	TRISAbits.TRISA5 = 0;   //允许输出
+
+    __delay_ms(1000);		//缓冲期
 	T2CONbits.TMR2ON = 1;   //开启时钟2
+	TRISAbits.TRISA5 = 0;   //允许输出
 	
     while (1)				//主循环
     {
-        if(add == 1)						//错开多路AD转换的频率
+		ADsensing();
+		Tempjudgements();
+		
+		__delay_ms(100);
+    }
+}
+
+//单次AD转换函数
+unsigned int getADCValue(unsigned char channel)
+{
+    ADCON0bits.CHS = channel;                               //选择AD通道
+    __delay_ms(5);                                          //改变AD通道后，需延时稳定
+    ADCON0bits.GO = 1;                                      //开始AD转换
+    while (ADCON0bits.GO);                                  //转换完成指示
+    return (unsigned int)((ADRESH << 2) | (ADRESL >> 6));   //返回高低位合并后的AD值
+}
+
+void ADsensing(void)
+{
+	if(add == 1)						//错开多路AD转换的频率
         {
             unsigned long VR;
             ad1 = getADCValue(0x00);		//AD接口感应的AD值
@@ -67,8 +90,11 @@ void main(void)
             r = ad3;
             add = 1;						//AD识别指示器
         }
-		
-		if(v <= (t - 2))					//温度判断
+}
+
+void Tempjudgements(void)
+{
+	if(v <= (t - 2))					//温度判断
 		{
 			B1 = 1;
 			y = 1;
@@ -89,18 +115,6 @@ void main(void)
 			timerActive = 0;				// 关闭计时器
 			timerCounter = 0;				// 重置计时器计数
 		}
-		__delay_ms(200);
-    }
-}
-
-//单次AD转换函数
-unsigned int getADCValue(unsigned char channel)
-{
-    ADCON0bits.CHS = channel;                               //选择AD通道
-    __delay_ms(5);                                          //改变AD通道后，需延时稳定
-    ADCON0bits.GO = 1;                                      //开始AD转换
-    while (ADCON0bits.GO);                                  //转换完成指示
-    return (unsigned int)((ADRESH << 2) | (ADRESL >> 6));   //返回高低位合并后的AD值
 }
 
 void __interrupt() ISR(void)            //中断处理函数
@@ -132,8 +146,8 @@ void __interrupt() ISR(void)            //中断处理函数
 		}
 		else if(y == 1)
 		{
-			CCPR1L = PR2 - 1;
-		}
+			CCPR1L = 0x3F;				//占空比公式：(CCPR1L + CCP1CONbits.DC1B)/(4(PR2 + 1))
+		}		
 		PIE1bits.TMR2IE = 1;			//允许时钟2溢出中断
 		T2CONbits.TMR2ON = 1;           //开启时钟2
 	}
@@ -191,16 +205,15 @@ void __interrupt() ISR(void)            //中断处理函数
 			{
 				B1 = 0;								// 将B1置为0
 				T2CONbits.TMR2ON = 0;				// 关闭时钟2
-				PIE1bits.TMR2IE = 0;
-				CCPR1L = 0;
+				//PIE1bits.TMR2IE = 0;
+				//CCPR1L = 0;
 				CCP1CON = 0;						// 关闭PWM
-				TRISAbits.TRISA5 = 0;
+				//TRISAbits.TRISA5 = 0;
 				ADCON0bits.ADON = 0;				// 关闭 AD 转换器
+				PORTAbits.RA5 = 0;
 				while(1)
 				{
-					PORTAbits.RA5 = 0;
-					__delay_ms(100);
-					PORTAbits.RA5 = 1;
+					PORTAbits.RA5 = !PORTAbits.RA5;
 					__delay_ms(100);
 				}
             }
