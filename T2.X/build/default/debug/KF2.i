@@ -3296,7 +3296,6 @@ extern __bank0 __bit __timeout;
 # 28 "C:\\XC8\\pic\\include\\xc.h" 2 3
 # 1 "KF2.c" 2
 
-
 # 1 "./KF2.h" 1
 
 
@@ -3328,40 +3327,40 @@ extern __bank0 __bit __timeout;
 
 void setup(void);
 void PWMinit(void);
-# 3 "KF2.c" 2
+# 2 "KF2.c" 2
 
 
 void setup(void)
 {
-    OSCCON = 0b01110000;
+ OSCCON = 0b01110000;
 
 
-    PORTAbits.RA4 = 0;
-    TRISAbits.TRISA4 = 0;
+ PORTAbits.RA4 = 0;
+ TRISAbits.TRISA4 = 0;
 
 
-    ANSELAbits.ANSA0 = 1;
-    ANSELAbits.ANSA1 = 1;
-    ANSELAbits.ANSA2 = 1;
-    ADCON1 = 0x50;
-    PIE1bits.ADIE = 1;
-    PIR1bits.ADIF = 0;
-    ADCON0bits.GO = 0;
-    ADCON0bits.ADON = 1;
+ ANSELAbits.ANSA0 = 1;
+ ANSELAbits.ANSA1 = 1;
+ ANSELAbits.ANSA2 = 1;
+ ADCON1 = 0x50;
+ PIE1bits.ADIE = 1;
+ PIR1bits.ADIF = 0;
+ ADCON0bits.GO = 0;
+ ADCON0bits.ADON = 1;
 }
 
 void PWMinit(void)
 {
  TRISAbits.TRISA5 = 1;
  APFCONbits.CCP1SEL = 1;
-    PR2 = 255;
+ PR2 = 254;
  CCP1CONbits.CCP1M = 0x0F;
  CCP1CONbits.P1M = 0;
-    INTCONbits.GIE = 1;
-    INTCONbits.PEIE = 1;
-    PIE1bits.TMR2IE = 1;
-    PIR1bits.TMR2IF = 0;
-    T2CONbits.T2CKPS = 3;
+ INTCONbits.GIE = 1;
+ INTCONbits.PEIE = 1;
+ PIE1bits.TMR2IE = 1;
+ PIR1bits.TMR2IF = 0;
+ T2CONbits.T2CKPS = 3;
 
 
 }

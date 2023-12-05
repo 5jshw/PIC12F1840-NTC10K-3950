@@ -3296,8 +3296,6 @@ extern __bank0 __bit __timeout;
 # 28 "C:\\XC8\\pic\\include\\xc.h" 2 3
 # 1 "main.c" 2
 
-
-
 # 1 "./KF2.h" 1
 
 
@@ -3329,32 +3327,47 @@ extern __bank0 __bit __timeout;
 
 void setup(void);
 void PWMinit(void);
-# 4 "main.c" 2
+# 2 "main.c" 2
 
 
 unsigned int getADCValue(unsigned char channel);
 unsigned int getADS(unsigned char ssa);
 void __attribute__((picinterrupt(("")))) ISR(void);
-int t, v, y = 0;
+void ADsensing(void);
+void Tempjudgements(void);
+
+
+int t;
+int v;
+int y = 0;
 unsigned int r;
 unsigned long Rt;
-unsigned int timerCounter = 0;
+ unsigned long VR;
+ char i;
+ char p;
+ char add = 0;
 char timerActive = 0;
-
-unsigned int const TABLE[] = {9712, 9166, 8654, 8172, 7722, 7298, 6900, 6526, 6176, 5534, 5242, 4966, 4708, 4464, 4234, 4016, 3812, 3620, 3438, 3266,
-                              3104, 2950, 2806, 2668, 2540, 2418, 2302, 2192, 2088, 1990, 1897, 1809, 1726, 1646, 1571, 1500, 1432, 1368, 1307, 1249,
-                              1194, 1142, 1092, 1045, 1000, 957, 916, 877, 840, 805, 772, 740, 709, 680, 653, 626, 601, 577, 554, 532, 511, 491, 472,
-                              454, 436, 420, 404, 388, 374, 360, 346, 334, 321, 309, 298, 287, 277, 267, 258, 248
+unsigned int timerCounter = 0;
+ unsigned long ad1 = 0;
+ unsigned int ad2 = 0;
+ unsigned int ad3 = 0;
+unsigned long const TABLE[] ={ 177000, 166400, 156500, 147200, 138500, 130400, 122900, 115800, 109100, 97120,
+        91660, 86540, 81720, 77220, 72980, 69000, 65260, 61760, 58460, 55340,
+        52420, 49660, 47080, 44640, 42340, 40160, 38120, 36200, 34380, 32660,
+        31040, 29500, 28060, 26680, 25400, 24180, 23020, 21920, 20880, 19900,
+        18970, 18090, 17260, 16460, 15710, 15000, 14320, 13680, 13070, 12490,
+        11940, 11420, 10920, 10450, 10000, 9574, 9166, 8778, 8408, 8058,
+        7722, 7404, 7098, 6808, 6532, 6268, 6016, 5776, 5546, 5326,
+        5118, 4918, 4726, 4544, 4368, 4202, 4042, 3888, 3742, 3602,
+        3468, 3340, 3216, 3098, 2986, 2878, 2774, 2674, 2580, 2488,
+        2400, 2316, 2234, 2158, 2082, 2012, 1942, 1876, 1813, 1751
                              };
-# 33 "main.c"
-unsigned long ad1 = 0;
-unsigned int ad2 = 0, ad3 = 0;
-
+# 56 "main.c"
 void main(void)
 {
  timerActive = 0;
     timerCounter = 0;
-    char add = 1;
+
     setup();
     PWMinit();
 
@@ -3364,53 +3377,12 @@ void main(void)
 
     while (1)
     {
-        if(add == 1)
-        {
-            unsigned long VR;
-            ad1 = getADCValue(0x00);
-            ad1 = 1024 - ad1;
-            VR = ad1 * 500 / 1024;
-            Rt = (unsigned long)(500 - VR) * 1000 / VR;
-            add++;
-        }
-        else if(add == 2)
-        {
-            ad2 = getADCValue(0x01);
-            t = (int)(ad2 * 10 / 128);
-            add++;
-        }
-        else
-        {
-            ad3 = getADCValue(0x02);
-            r = ad3;
-            add = 1;
-        }
+  ADsensing();
+  Tempjudgements();
 
-  if(v <= (t - 2))
-  {
-   PORTAbits.RA4 = 1;
-   y = 1;
-   if (r < 100 || r > 900)
-   {
-    timerActive = 1;
-   }
-   else
-   {
-    timerActive = 0;
-    timerCounter = 0;
-   }
-  }
-  else if(v > t)
-  {
-   PORTAbits.RA4 = 0;
-   y = 0;
-   timerActive = 0;
-   timerCounter = 0;
-  }
   _delay((unsigned long)((100)*(32000000/4000.0)));
     }
 }
-
 
 unsigned int getADCValue(unsigned char channel)
 {
@@ -3421,11 +3393,61 @@ unsigned int getADCValue(unsigned char channel)
     return (unsigned int)((ADRESH << 2) | (ADRESL >> 6));
 }
 
+void ADsensing(void)
+{
+ if(add == 0)
+ {
+  ad1 = getADCValue(0x00);
+  ad1 = 1024 - ad1;
+  VR = ad1 * 500 / 1024;
+  Rt = (unsigned long)(500 - VR) * 10000 / VR;
+  add++;
+ }
+ else if(add == 1)
+ {
+  ad2 = getADCValue(0x01);
+  t = (int)(ad2 * 10 / 128);
+  t += 10;
+  add++;
+ }
+ else if(add == 2)
+ {
+  ad3 = getADCValue(0x02);
+  r = ad3;
+  add = 0;
+ }
+ else add = 0;
+}
+
+void Tempjudgements(void)
+{
+ if(v <= t)
+ {
+  PORTAbits.RA4 = 1;
+  y = 1;
+  if (r < 100 || r > 900)
+  {
+   timerActive = 1;
+  }
+  else
+  {
+   timerActive = 0;
+   timerCounter = 0;
+  }
+ }
+ else if(v > (t + 5))
+ {
+  PORTAbits.RA4 = 0;
+  y = 0;
+  timerActive = 0;
+  timerCounter = 0;
+ }
+}
+
 void __attribute__((picinterrupt(("")))) ISR(void)
 {
  if(PIR1bits.TMR2IF == 1)
  {
-  char p;
   PIE1bits.TMR2IE = 0;
   T2CONbits.TMR2ON = 0;
   PIR1bits.TMR2IF = 0;
@@ -3450,7 +3472,7 @@ void __attribute__((picinterrupt(("")))) ISR(void)
   }
   else if(y == 1)
   {
-   CCPR1L = 230;
+   CCPR1L = 0x3F;
   }
   PIE1bits.TMR2IE = 1;
   T2CONbits.TMR2ON = 1;
@@ -3460,35 +3482,27 @@ void __attribute__((picinterrupt(("")))) ISR(void)
  {
   PIE1bits.ADIE = 0;
   PIR1bits.ADIF = 0;
-  char i;
-  for(i = 0; i < 80; i++)
+  for(i = 0; i < 100; i++)
   {
-   if((unsigned int)Rt >= TABLE[i])
+   if(Rt >= TABLE[i])
    {
     v = i;
     break;
    }
+   else if(Rt < TABLE[99])
+   {
+    v = 200;
+    break;
+   }
   }
-# 180 "main.c"
   if (timerActive)
   {
-            if((r < 100 || r > 900) && (v <= (t - 2)))
-   {
-                timerCounter++;
-            }else
-   {
-                timerCounter = 0;
-    timerActive = 0;
-            }
-
-            if(timerCounter >= 5)
+   timerCounter++;
+   if(timerCounter >= 5)
    {
     PORTAbits.RA4 = 0;
     T2CONbits.TMR2ON = 0;
-
-
     CCP1CON = 0;
-
     ADCON0bits.ADON = 0;
     PORTAbits.RA5 = 0;
     while(1)
@@ -3496,8 +3510,8 @@ void __attribute__((picinterrupt(("")))) ISR(void)
      PORTAbits.RA5 = !PORTAbits.RA5;
      _delay((unsigned long)((100)*(32000000/4000.0)));
     }
-            }
-        }
+   }
+  }
   PIE1bits.ADIE = 1;
  }
 }

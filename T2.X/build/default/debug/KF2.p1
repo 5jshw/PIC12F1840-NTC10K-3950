@@ -528,90 +528,90 @@ Version 4.0 HI-TECH Software Intermediate Code
 [p x DEBUG  =  OFF       ]
 "22
 [p x LVP  =  OFF         ]
-"5 KF2.c
-[; ;KF2.c: 5: void setup(void)
+"4 KF2.c
+[; ;KF2.c: 4: void setup(void)
 [v _setup `(v ~T0 @X0 1 ef ]
-"6
-[; ;KF2.c: 6: {
+"5
+[; ;KF2.c: 5: {
 {
 [e :U _setup ]
 [f ]
-"7
-[; ;KF2.c: 7:     OSCCON = 0b01110000;
+"6
+[; ;KF2.c: 6:  OSCCON = 0b01110000;
 [e = _OSCCON -> -> 112 `i `uc ]
-"10
-[; ;KF2.c: 10:     PORTAbits.RA4 = 0;
+"9
+[; ;KF2.c: 9:  PORTAbits.RA4 = 0;
 [e = . . _PORTAbits 0 4 -> -> 0 `i `uc ]
-"11
-[; ;KF2.c: 11:     TRISAbits.TRISA4 = 0;
+"10
+[; ;KF2.c: 10:  TRISAbits.TRISA4 = 0;
 [e = . . _TRISAbits 0 4 -> -> 0 `i `uc ]
-"14
-[; ;KF2.c: 14:     ANSELAbits.ANSA0 = 1;
+"13
+[; ;KF2.c: 13:  ANSELAbits.ANSA0 = 1;
 [e = . . _ANSELAbits 0 0 -> -> 1 `i `uc ]
-"15
-[; ;KF2.c: 15:     ANSELAbits.ANSA1 = 1;
+"14
+[; ;KF2.c: 14:  ANSELAbits.ANSA1 = 1;
 [e = . . _ANSELAbits 0 1 -> -> 1 `i `uc ]
-"16
-[; ;KF2.c: 16:     ANSELAbits.ANSA2 = 1;
+"15
+[; ;KF2.c: 15:  ANSELAbits.ANSA2 = 1;
 [e = . . _ANSELAbits 0 2 -> -> 1 `i `uc ]
-"17
-[; ;KF2.c: 17:     ADCON1 = 0x50;
+"16
+[; ;KF2.c: 16:  ADCON1 = 0x50;
 [e = _ADCON1 -> -> 80 `i `uc ]
-"18
-[; ;KF2.c: 18:     PIE1bits.ADIE = 1;
+"17
+[; ;KF2.c: 17:  PIE1bits.ADIE = 1;
 [e = . . _PIE1bits 0 6 -> -> 1 `i `uc ]
-"19
-[; ;KF2.c: 19:     PIR1bits.ADIF = 0;
+"18
+[; ;KF2.c: 18:  PIR1bits.ADIF = 0;
 [e = . . _PIR1bits 0 6 -> -> 0 `i `uc ]
-"20
-[; ;KF2.c: 20:     ADCON0bits.GO = 0;
+"19
+[; ;KF2.c: 19:  ADCON0bits.GO = 0;
 [e = . . _ADCON0bits 2 1 -> -> 0 `i `uc ]
-"21
-[; ;KF2.c: 21:     ADCON0bits.ADON = 1;
+"20
+[; ;KF2.c: 20:  ADCON0bits.ADON = 1;
 [e = . . _ADCON0bits 0 0 -> -> 1 `i `uc ]
-"22
-[; ;KF2.c: 22: }
+"21
+[; ;KF2.c: 21: }
 [e :UE 264 ]
 }
-"24
-[; ;KF2.c: 24: void PWMinit(void)
+"23
+[; ;KF2.c: 23: void PWMinit(void)
 [v _PWMinit `(v ~T0 @X0 1 ef ]
-"25
-[; ;KF2.c: 25: {
+"24
+[; ;KF2.c: 24: {
 {
 [e :U _PWMinit ]
 [f ]
-"26
-[; ;KF2.c: 26:  TRISAbits.TRISA5 = 1;
+"25
+[; ;KF2.c: 25:  TRISAbits.TRISA5 = 1;
 [e = . . _TRISAbits 0 5 -> -> 1 `i `uc ]
-"27
-[; ;KF2.c: 27:  APFCONbits.CCP1SEL = 1;
+"26
+[; ;KF2.c: 26:  APFCONbits.CCP1SEL = 1;
 [e = . . _APFCONbits 0 0 -> -> 1 `i `uc ]
+"27
+[; ;KF2.c: 27:  PR2 = 254;
+[e = _PR2 -> -> 254 `i `uc ]
 "28
-[; ;KF2.c: 28:     PR2 = 255;
-[e = _PR2 -> -> 255 `i `uc ]
-"29
-[; ;KF2.c: 29:  CCP1CONbits.CCP1M = 0x0F;
+[; ;KF2.c: 28:  CCP1CONbits.CCP1M = 0x0F;
 [e = . . _CCP1CONbits 1 0 -> -> 15 `i `uc ]
-"30
-[; ;KF2.c: 30:  CCP1CONbits.P1M = 0;
+"29
+[; ;KF2.c: 29:  CCP1CONbits.P1M = 0;
 [e = . . _CCP1CONbits 1 2 -> -> 0 `i `uc ]
-"31
-[; ;KF2.c: 31:     INTCONbits.GIE = 1;
+"30
+[; ;KF2.c: 30:  INTCONbits.GIE = 1;
 [e = . . _INTCONbits 0 7 -> -> 1 `i `uc ]
-"32
-[; ;KF2.c: 32:     INTCONbits.PEIE = 1;
+"31
+[; ;KF2.c: 31:  INTCONbits.PEIE = 1;
 [e = . . _INTCONbits 0 6 -> -> 1 `i `uc ]
-"33
-[; ;KF2.c: 33:     PIE1bits.TMR2IE = 1;
+"32
+[; ;KF2.c: 32:  PIE1bits.TMR2IE = 1;
 [e = . . _PIE1bits 0 1 -> -> 1 `i `uc ]
-"34
-[; ;KF2.c: 34:     PIR1bits.TMR2IF = 0;
+"33
+[; ;KF2.c: 33:  PIR1bits.TMR2IF = 0;
 [e = . . _PIR1bits 0 1 -> -> 0 `i `uc ]
-"35
-[; ;KF2.c: 35:     T2CONbits.T2CKPS = 3;
+"34
+[; ;KF2.c: 34:  T2CONbits.T2CKPS = 3;
 [e = . . _T2CONbits 1 0 -> -> 3 `i `uc ]
-"38
-[; ;KF2.c: 38: }
+"37
+[; ;KF2.c: 37: }
 [e :UE 265 ]
 }
